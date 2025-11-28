@@ -1,5 +1,22 @@
 {
-    "user": [
-        
-    ]
+  "users": [
+    {
+      "id": "81e1",
+      "name": "Larissa Hall",
+      "email": "galekowiqu@mailinator.com",
+      "password": "Pa$$w0rd!"
+    },
+    {
+      "id": "4d7b",
+      "name": "Paula Ramsey",
+      "email": "jodigyfin@mailinator.com",
+      "password": "Pa$$w0rd!"
+    },
+    {
+      "id": "89db",
+      "name": "Marshall Holder",
+      "email": "guravoja@mailinator.com",
+      "password": "Pa$$w0rd!"
+    }
+  ]
 }

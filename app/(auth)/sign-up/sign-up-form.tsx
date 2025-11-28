@@ -11,12 +11,13 @@ import {
 } from "@mantine/core";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import axios from "axios";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { SignUpFormData, signUpSchema } from "@/lib/validator";
 
 function SignUpForm() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
 
@@ -29,37 +30,55 @@ function SignUpForm() {
   });
 
   const onSubmit = async (data: SignUpFormData) => {
+    console.log("🚀 Sign up attempt:", data.email);
     setLoading(true);
     setApiError("");
+
     try {
       // 1. Check if user exists
       const existingUsers = await axios.get(
-        `http://localhost:5000/sign?email=${data.email}`
+        `http://localhost:5000/users?email=${data.email}`
       );
+
       if (existingUsers.data.length > 0) {
         setApiError("User already exists with this email");
         setLoading(false);
         return;
       }
 
-      // 2. Create new user
-      await axios.post("http://localhost:5000/sign", {
-        fullName: data.fullName,
+      // 2. Create new user with "name" field (not fullName)
+      const newUser = await axios.post("http://localhost:5000/users", {
+        name: data.fullName, // ⚠️ Save as "name" in database
         email: data.email,
-        password: data.password,
+        password: data.password, // ⚠️ Production এ hash করতে হবে!
       });
 
-      // 3. Auto-login using NextAuth credentials provider
+      console.log("✅ User created:", newUser.data);
+
+      // 3. Auto-login
       const result = await signIn("credentials", {
-        redirect: true,
         email: data.email,
         password: data.password,
-        callbackUrl: "/",
+        redirect: false, // ⚠️ Important
       });
 
-      if (result?.error) setApiError(result.error);
-      else alert("Account created & logged in successfully!");
+      console.log("📥 Auto-login result:", result);
+
+      if (result?.error) {
+        setApiError(
+          "Account created but login failed. Please sign in manually."
+        );
+        setLoading(false);
+        return;
+      }
+
+      if (result?.ok) {
+        console.log("✅ Sign up & login successful!");
+        router.push("/");
+        router.refresh();
+      }
     } catch (error: any) {
+      console.error("💥 Sign up error:", error);
       setApiError(error.response?.data?.message || "Something went wrong.");
     } finally {
       setLoading(false);
@@ -74,7 +93,7 @@ function SignUpForm() {
         </Title>
 
         {apiError && (
-          <Text color="red" align="center" className="mb-4">
+          <Text color="red" className="mb-4 text-center">
             {apiError}
           </Text>
         )}
@@ -124,7 +143,7 @@ function SignUpForm() {
           </Button>
         </form>
 
-        <Text align="center" className="mt-4 text-gray-500">
+        <Text className="text-center mt-4 text-gray-500">
           Already have an account?{" "}
           <span className="text-pink-600 font-semibold cursor-pointer">
             Sign In
