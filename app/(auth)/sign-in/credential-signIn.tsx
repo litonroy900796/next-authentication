@@ -13,6 +13,9 @@ import {
   Title,
   Text,
 } from "@mantine/core";
+import Link from "next/link";
+import GithubLogin from "./github-login";
+import GoogleLogin from "./google-login";
 
 function CredentialSignIn() {
   const router = useRouter();
@@ -95,12 +98,19 @@ function CredentialSignIn() {
             Sign In
           </Button>
         </form>
+        <div>
+          <GithubLogin />
+          <GoogleLogin />
+        </div>
 
-        <Text className="text-center mt-4 text-gray-500">
-          Don't have an account?{" "}
-          <span className="text-purple-600 font-semibold cursor-pointer">
+        <Text className="text-center mt-5! block text-gray-500">
+          Do not have an account?{" "}
+          <Link
+            href={"/sign-up"}
+            className="text-purple-600 font-semibold cursor-pointer"
+          >
             Sign Up
-          </span>
+          </Link>
         </Text>
       </Paper>
     </div>
